@@ -105,6 +105,7 @@ public class JsonAdapterPourGemini implements Serializable {
         }
     }
 
+
     /**
      * Crée une requête JSON pour envoyer à l'API de Gemini.
      * Il y a le rôle du système et la question de l'utilisateur.
