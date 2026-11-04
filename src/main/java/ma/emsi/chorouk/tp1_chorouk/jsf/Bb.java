@@ -1,6 +1,8 @@
 package ma.emsi.chorouk.tp1_chorouk.jsf;
 
-import ma.emsi.chorouk.tp1_chorouk.service.GenerateurReponse;
+import ma.emsi.chorouk.tp1_chorouk.llm.JsonAdapterPourGemini;
+import ma.emsi.chorouk.tp1_chorouk.llm.LlmInteraction;
+import ma.emsi.chorouk.tp1_chorouk.llm.RequeteException;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
@@ -11,6 +13,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Named
 @ViewScoped
 public class Bb implements Serializable {
@@ -19,9 +22,38 @@ public class Bb implements Serializable {
     private List<SelectItem> listeRolesSysteme;
     private String question;
     private String reponse;
+    private boolean debug;
+    private String texteRequeteJson;
+
+    public String getTexteReponseJson() {
+        return texteReponseJson;
+    }
+
+    public void setTexteReponseJson(String texteReponseJson) {
+        this.texteReponseJson = texteReponseJson;
+    }
+
+    public void setTexteRequeteJson(String texteRequeteJson) {
+        this.texteRequeteJson = texteRequeteJson;
+    }
+
+    private String texteReponseJson;
     private StringBuilder conversation = new StringBuilder();
-    @Inject private GenerateurReponse generateurReponse;
+    @Inject private JsonAdapterPourGemini jsonAdapterPourGemini;
     @Inject private FacesContext facesContext;
+
+    public String getTexteRequeteJson() {
+        return texteRequeteJson;
+    }
+
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
 
     public Bb() {}
     public String getRoleSysteme() { return roleSysteme; }
@@ -41,13 +73,27 @@ public class Bb implements Serializable {
             facesContext.addMessage(null, message);
             return null;
         }
-        String roleSystemePourModification = null;
         if (this.conversation.isEmpty()) {
-            roleSystemePourModification = this.roleSysteme;
+            jsonAdapterPourGemini.setSystemRole(this.roleSysteme);
             this.roleSystemeChangeable = false;
         }
-        this.reponse += this.generateurReponse.genererReponse(this.question, roleSystemePourModification);
-        afficherConversation();
+        try {
+            LlmInteraction interaction =
+                    jsonAdapterPourGemini.envoyerRequete(this.question);
+                    this.texteRequeteJson = interaction.questionJson();
+                    this.texteReponseJson = interaction.reponseJson();
+                    this.reponse = interaction.reponseExtraite();
+                    afficherConversation();
+        } catch (RequeteException e) {
+            FacesMessage message = new FacesMessage(
+                    FacesMessage.SEVERITY_ERROR,
+                    "Erreur lors de la requête Gemini",
+                    e.getMessage()
+            );
+            facesContext.addMessage(null, message);
+
+        }
+
         return null;
     }
     public String nouveauChat() { return "index"; }
