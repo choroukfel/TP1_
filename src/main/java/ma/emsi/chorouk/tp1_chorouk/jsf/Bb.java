@@ -121,6 +121,13 @@ public class Bb implements Serializable {
                     are you tell them the average price of a meal.
                     """;
             this.listeRolesSysteme.add(new SelectItem(role, "Guide touristique"));
+            listeRolesSysteme.add(new SelectItem(
+                    "Tu es un détective spécialisé dans les erreurs Java. " +
+                            "Pour chaque problème, présente trois parties : " +
+                            "Indices, Diagnostic et Solution. " +
+                            "Utilise un ton d'enquêteur clair et amusant.",
+                    "Détective des erreurs Java"
+            ));
         }
         return this.listeRolesSysteme;
     }
