@@ -42,6 +42,7 @@ tasklist /FI "PID eq 12345"
 Le nombre `12345` est un exemple à remplacer par le PID réellement affiché.
 
 L'IA m'a expliqué qu'il fallait vérifier le processus avant de l'arrêter, afin de ne pas interrompre une autre application par erreur.
+ 
 
 ### 5. Ce que j'ai appris
 
